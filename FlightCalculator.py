@@ -133,7 +133,7 @@ def Välj_Uträkning():
         return
     else:
         print("Fel: Ogiltigt val!")
-        Välj_Uträkning()
+        return
 
 def main():
     Välj_Uträkning()
