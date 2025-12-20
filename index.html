@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flygkalkylator</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+    <script defer src="app.js"></script>
+</head>
+
+<body>
+    <h1>Flygkalkylator</h1>
+
+    <div class="card">
+        <h2>True Airspeed (TAS)</h2>
+        <input id="alt" type="number" placeholder="Höjd (ft)">
+        <input id="ias" type="number" placeholder="IAS (kt)">
+        <input id="qnh" type="number" placeholder="QNH">
+        <input id="oat" type="number" placeholder="Temperatur (°C)">
+        <button onclick="calcTAS()">Beräkna TAS</button>
+        <p id="tasResult"></p>
+    </div>
+
+    <div class="card">
+        <h2>Vindupphållning (WCA)</h2>
+        <input id="ws" type="number" placeholder="Vindhastighet (kt)">
+        <input id="tas2" type="number" placeholder="TAS (kt)">
+        <input id="wd" type="number" placeholder="Vindriktning (°)">
+        <input id="mt" type="number" placeholder="Magnetisk Track (°)">
+        <button onclick="calcWCA()">Beräkna WCA</button>
+        <p id="wcaResult"></p>
+        <p id="mhResult"></p>
+    </div>
+
+    <div class="card">
+        <h2>Groundspeed (GS)</h2>
+        <input id="tas3" type="number" placeholder="TAS (kt)">
+        <input id="ws2" type="number" placeholder="Vindhastighet (kt)">
+        <input id="wd2" type="number" placeholder="Vindriktning (°)">
+        <input id="mh2" type="number" placeholder="Magnetisk kurs (°)">
+        <button onclick="calcGS()">Beräkna GS</button>
+        <p id="gsResult"></p>
+    </div>
+
+    <div class="card">
+        <h2>Tryckhöjd (TH)</h2>
+        <input id="alt2" type="number" placeholder="Höjd (ft)">
+        <input id="qnh2" type="number" placeholder="QNH">
+        <button onclick="calcTH()">Beräkna TH</button>
+        <p id="thResult"></p>
+    </div>
+
+    <div class="card">
+        <h2>Densitetshöjd (DH)</h2>
+        <input id="alt3" type="number" placeholder="Höjd (ft)">
+        <input id="qnh3" type="number" placeholder="QNH">
+        <input id="oat2" type="number" placeholder="Temperatur (°C)">
+        <button onclick="calcDH()">Beräkna DH</button>
+        <p id="dhResult"></p>
+    </div>
+
+</body>
+</html>
