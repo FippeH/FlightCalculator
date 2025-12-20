@@ -28,18 +28,18 @@ class Validering:
 STD = 1013
 ISA = 15
 WS_Validering = Validering()
-TAS_Validering = Validering()
 WD_Validering = Validering(0, 360)
 MT_Validering = Validering(0, 360)
 MH_Validering = Validering(0, 360)
-Höjd_Validering = Validering()
+ALT_Validering = Validering()
 QNH_Validering = Validering(930, 1070)
 Temp_Validering = Validering(-50, 50)
-Val_Validering = Validering(1, 6)
 IAS_Validering = Validering()
+TAS_Validering = Validering()
 
 def Uträkning_TAS():
-    ALT = Höjd_Validering.Validera("Skriv Flygplanets höjd över havet i fot: ")  
+    os.system("cls" if os.name == "nt" else "clear")
+    ALT = ALT_Validering.Validera("Skriv Flygplanets höjd över havet(Fot): ")  
     IAS = IAS_Validering.Validera("Skriv Indikerad Hastighet(Knop): ")  
     QNH = QNH_Validering.Validera("Skriv aktuellt QNH: ")
     OAT = Temp_Validering.Validera("Skriv aktuell temperatur(°C): ")
@@ -53,14 +53,14 @@ def Uträkning_TAS():
     input("\nTryck Enter för att fortsätta...")
 
 def Uträkning_WCA():
-    WS = WS_Validering.Validera("Skriv Vindhastighet: ")
-    TAS = TAS_Validering.Validera("Skriv TrueAirspeed: ")
+    os.system("cls" if os.name == "nt" else "clear")
+    WS = WS_Validering.Validera("Skriv Vindhastighet(Knop): ")
+    TAS = TAS_Validering.Validera("Skriv TrueAirspeed(Knop): ")
     WD = WD_Validering.Validera("Skriv Vindriktning: ")
     MT = MT_Validering.Validera("Skriv Magnetisk Track: ")
 
     WA = (WD - MT) % 360
     Formel = (WS / TAS) * N.sin(N.radians(WA))
-
     if abs(Formel) > 1:
         print("Fel: Vindkomponenten är för stor för att beräkna WCA.\n")
         return
@@ -78,8 +78,9 @@ def Uträkning_WCA():
     input("\nTryck Enter för att fortsätta...")
 
 def Uträkning_GS():
-    TAS = TAS_Validering.Validera("Skriv TrueAirspeed: ")
-    WS = WS_Validering.Validera("Skriv Vindhastighet: ")
+    os.system("cls" if os.name == "nt" else "clear")
+    TAS = TAS_Validering.Validera("Skriv TrueAirspeed(Knop): ")
+    WS = WS_Validering.Validera("Skriv Vindhastighet(Knop): ")
     WD = WD_Validering.Validera("Skriv Vindriktning: ")
     MH = MH_Validering.Validera("Skriv Magnetisk kurs: ")
 
@@ -90,7 +91,8 @@ def Uträkning_GS():
     input("\nTryck Enter för att fortsätta...")
 
 def Uträkning_TH():
-    ALT = Höjd_Validering.Validera("Skriv Flygplatsens höjd över havet i fot: ")    
+    os.system("cls" if os.name == "nt" else "clear")
+    ALT = ALT_Validering.Validera("Skriv Flygplatsens höjd över havet(Fot): ")    
     QNH = QNH_Validering.Validera("Skriv aktuellt QNH: ")
 
     TH = (ALT + ((STD - QNH) * 27))        
@@ -99,7 +101,8 @@ def Uträkning_TH():
     input("\nTryck Enter för att fortsätta...")
 
 def Uträkning_DH():
-    ALT = Höjd_Validering.Validera("Skriv Flygplatsens eller Flygplanets höjd över havet i fot: ")    
+    os.system("cls" if os.name == "nt" else "clear")
+    ALT = ALT_Validering.Validera("Skriv Flygplatsens eller Flygplanets höjd över havet(Fot): ")    
     QNH = QNH_Validering.Validera("Skriv aktuellt QNH: ")
     OAT = Temp_Validering.Validera("Skriv aktuell temperatur(°C): ")
 
@@ -120,8 +123,12 @@ def Välj_Uträkning():
     print("5 - Räkna Densitetshöjd")
     print("6 - Avsluta Programmet")
 
-    Val = Val_Validering.Validera("\nVal: ")
+    Svar = input("\nVal: ")
+    if not Svar.isdigit():
+        input("Fel: Endast siffror får skrivas!, Tryck ENTER för att fortsätta!")
+        return True
     
+    Val = int(Svar)
     if Val == 1:
         Uträkning_TAS()
     elif Val == 2:
@@ -134,14 +141,14 @@ def Välj_Uträkning():
         Uträkning_DH()
     elif Val == 6:
         print("Programmet avslutas!")
-        return
+        return False
     else:
-        print("Fel: Ogiltigt val!")
-        return
+        input("Fel: Ogiltigt val!, Tryck ENTER för att fortsätta!")
+        return True
+    return True
 
 def main():
-    while True:
-        Välj_Uträkning()
-
+    while Välj_Uträkning():
+        pass
 if __name__=="__main__":
     main()
