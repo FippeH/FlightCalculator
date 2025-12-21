@@ -1,14 +1,25 @@
 import numpy as N
 import os
+from datetime import datetime
 
+#--------------------------------Validering av input------------------------------#
 class Validering:
-    def __init__(self, Lägsta_Värde=None, Högsta_Värde=None):
+    def __init__(self, Lägsta_Värde=None, Högsta_Värde=None, Tid="Tid"):
         self.Lägsta_Värde = Lägsta_Värde
         self.Högsta_Värde = Högsta_Värde
+        self.Tid = Tid
 
     def Validera(self, Fråga):
         while True:
             Svar = input(Fråga)
+
+            if self.Tid == "Tid":
+                if self.Validera_tid(Svar):
+                    return Svar.zfill(4)
+                else:
+                    print("Fel: Ogiltigt tidsformat!")
+                    continue
+
             try:
                 Svar = Svar.replace(",",".")
                 Nummer = float(Svar)
@@ -25,18 +36,33 @@ class Validering:
             except ValueError:
                 print("Fel: Svaret får ej innehålla bokstäver!")
 
-STD = 1013
-ISA = 15
-WS_Validering = Validering()
-WD_Validering = Validering(0, 360)
-MT_Validering = Validering(0, 360)
-MH_Validering = Validering(0, 360)
-ALT_Validering = Validering()
-QNH_Validering = Validering(930, 1070)
-Temp_Validering = Validering(-50, 50)
-IAS_Validering = Validering()
-TAS_Validering = Validering()
+    def Validera_tid(self, tid):
+        if not (tid.isdigit() and 1 <= len(tid) <= 4):
+            return False
+        tid = tid.zfill(4)
+        hh = int(tid[:2])
+        mm = int(tid[2:])
+        return 0 <= hh <= 23 and 0 <= mm <= 59
 
+#---------------------------------------------------------------------------------#
+
+#------------------------------------Variabler------------------------------------#
+STD = 1013                              #Standard Barometriskt tryck (hPa)        |
+ISA = 15                                #Standard ISA temperatur                  | 
+WS_Validering = Validering()            #Vindhastighet                            | 
+WD_Validering = Validering(0, 360)      #Vindriktning                             |  
+MT_Validering = Validering(0, 360)      #Magnetikstrack                           |
+MH_Validering = Validering(0, 360)      #Magnetiskkurs                            |
+RW_Validering = Validering(0, 360)      #Bana                                     |
+ALT_Validering = Validering()           #Höjd                                     |
+QNH_Validering = Validering(930, 1070)  #Barometriskt tryck (hPa)                 |
+Temp_Validering = Validering(-50, 50)   #Temperatur Celcius                       |
+IAS_Validering = Validering()           #Indikeradhastighet                       |
+TAS_Validering = Validering()           #True Airspeed                            |
+TID_Validering = Validering(Tid="Tid")
+#---------------------------------------------------------------------------------#
+
+#------------------------------------Funktioner-----------------------------------#
 def Uträkning_TAS():
     os.system("cls" if os.name == "nt" else "clear")
     ALT = ALT_Validering.Validera("Skriv Flygplanets höjd över havet(Fot): ")  
@@ -113,15 +139,80 @@ def Uträkning_DH():
     print(f"Densitetshöjden är: {DH:.1f} fot")
     input("\nTryck Enter för att fortsätta...")
 
+def Uträkning_VK():
+    os.system("cls" if os.name == "nt" else "clear")
+    RW = RW_Validering.Validera("Skriv banans riktning: ")
+    WD = WD_Validering.Validera("Skriv Vindriktning: ")
+    WS = WS_Validering.Validera("Skriv Vindhastighet(Knop): ")
+
+    WA = (WD - RW) % 360
+    WA_rad = N.radians(WA)
+    SV = N.sin(WA_rad) * WS
+    MV = N.cos(WA_rad) * WS
+    
+    if SV > 0:
+        sidvind_riktning = "från höger"
+    elif SV < 0:
+        sidvind_riktning = "från vänster"
+    else:
+        sidvind_riktning = "ingen sidvind"
+
+    if MV > 0:
+        motvind_riktning = "motvind"
+    elif MV < 0:
+        motvind_riktning = "medvind"
+    else:
+        motvind_riktning = "ingen mot-/medvind"
+
+    print(f"\nVindvinkel relativt till banan: {WA:.1f}°")
+    print(f"Sidvindskomposant: {abs(SV):.1f} knop {sidvind_riktning}")
+    print(f"Motvindskomposant: {abs(MV):.1f} knop {motvind_riktning}")
+    input("\nTryck Enter för att fortsätta...")
+
+def Uträkning_RR():
+    os.system("cls" if os.name == "nt" else "clear")
+    ALT = ALT_Validering.Validera("Skriv flygplanets höjd över havet(Fot): ")
+    GND = ALT_Validering.Validera("Skriv stationens höjd över havet(Fot): ")
+
+    RR = 1.225 * (N.sqrt(ALT) + N.sqrt(GND))
+          
+    print(f"Räckvidden till stationen från {ALT:.1f} fot är: {RR:.1f} nautiska mil!")
+    input("\nTryck Enter för att fortsätta...")
+
+def Uträkning_BT():
+    os.system("cls" if os.name == "nt" else "clear")
+    Tid_On = TID_Validering.Validera("Skriv ON-BLOCK tiden (HHMM): ")
+    Tid_Off = TID_Validering.Validera("Skriv OFF-BLOCK tiden (HHMM): ")
+
+    Tid_On = Tid_On.zfill(4)
+    Tid_Off = Tid_Off.zfill(4)
+
+    Format = "%H%M"
+    ONBT = datetime.strptime(Tid_On, Format)
+    OFFBT = datetime.strptime(Tid_Off, Format)
+
+    if OFFBT < ONBT:
+        OFFBT = OFFBT.replace(day=ONBT.day + 1)
+
+    diff = OFFBT - ONBT
+    minuter = diff.total_seconds() / 60
+    BT = minuter / 60
+
+    print(f"Blocktiden är {BT:.1f} timmar! ({minuter:.0f} minuter)")
+    input("\nTryck Enter för att fortsätta...")
+
 def Välj_Uträkning():
     os.system("cls" if os.name == "nt" else "clear")
     print("\nVälj en av funktionerna i listan nedan.\n")
-    print("1 - Räkna True Airspeed")
+    print("1 - Räkna TrueAirspeed")
     print("2 - Räkna Vindupphållningsvinkel")
     print("3 - Räkna Markhastighet")
     print("4 - Räkna Tryckhöjd")
     print("5 - Räkna Densitetshöjd")
-    print("6 - Avsluta Programmet")
+    print("6 - Räkna Vindkomposant")
+    print("7 - Räkna Radioräckvidd")
+    print("8 - Räkna Blocktid")
+    print("9 - Avsluta Programmet")
 
     Svar = input("\nVal: ")
     if not Svar.isdigit():
@@ -140,6 +231,12 @@ def Välj_Uträkning():
     elif Val == 5:
         Uträkning_DH()
     elif Val == 6:
+        Uträkning_VK()
+    elif Val == 7:
+        Uträkning_RR()
+    elif Val == 8:
+        Uträkning_BT()
+    elif Val == 9:
         print("Programmet avslutas!")
         return False
     else:
@@ -150,5 +247,6 @@ def Välj_Uträkning():
 def main():
     while Välj_Uträkning():
         pass
+
 if __name__=="__main__":
     main()
